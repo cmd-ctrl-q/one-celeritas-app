@@ -28,3 +28,5 @@
 Makefile
 .env
 /tmp
+docker-compose.yml
+db-data
