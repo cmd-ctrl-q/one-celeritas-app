@@ -1,0 +1,15 @@
+{
+    "html.format.templating": true,
+    "go-template.languages": [
+        "tmpl",
+        "gtpl",
+        "gohtml",
+        "go.tmpl"
+    ],
+    "files.associations": {
+        "*.tmpl": "html",
+        "*.gohtml": "html",
+        "*.gtpl": "html",
+        "*.jet": "html"
+    },
+}
