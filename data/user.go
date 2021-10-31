@@ -2,6 +2,7 @@ package data
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -132,10 +133,10 @@ func (u *User) Insert(theUser User) (int, error) {
 	collection := upper.Collection(u.Table())
 	res, err := collection.Insert(theUser)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error inserting a user: %w", err)
 	}
 
-	id := getInsertID(res.ID)
+	id := getInsertID(res.ID())
 
 	return id, nil
 }

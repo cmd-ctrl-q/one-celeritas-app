@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"myapp/data"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -15,6 +17,72 @@ func (a *application) routes() *chi.Mux {
 	a.App.Routes.Get("/go-page", a.Handlers.GoPage)
 	a.App.Routes.Get("/jet-page", a.Handlers.JetPage)
 	a.App.Routes.Get("/sessions", a.Handlers.SessionTest)
+	a.App.Routes.Get("/create-user", func(rw http.ResponseWriter, r *http.Request) {
+		u := data.User{
+			FirstName: "jack",
+			LastName:  "beanstalk",
+			Email:     "jack@andthebeanstalk.com",
+			Active:    1,
+			Password:  "password",
+		}
+
+		id, err := a.Models.Users.Insert(u)
+		if err != nil {
+			// bad request
+			a.App.ErrorLog.Println(err)
+			return
+		}
+
+		fmt.Fprintf(rw, "%d: %s", id, u.FirstName)
+	})
+
+	a.App.Routes.Get("/get-all-users", func(rw http.ResponseWriter, r *http.Request) {
+		users, err := a.Models.Users.GetAll()
+		if err != nil {
+			// bad request
+			a.App.ErrorLog.Println(err)
+			return
+		}
+		for _, x := range users {
+			fmt.Fprint(rw, x.LastName)
+		}
+	})
+
+	a.App.Routes.Get("/get-user/{id}", func(rw http.ResponseWriter, r *http.Request) {
+		id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+		u, err := a.Models.Users.Get(id)
+		if err != nil {
+			// bad request
+			a.App.ErrorLog.Println(err)
+			return
+		}
+
+		fmt.Fprintf(rw, "%s %s %s", u.FirstName, u.LastName, u.Email)
+	})
+
+	a.App.Routes.Get("/update-user/{id}", func(rw http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if id == 0 {
+			// bad request
+			a.App.ErrorLog.Println("user id not provided: %w", err)
+			return
+		}
+		u, err := a.Models.Users.Get(id)
+		if err != nil {
+			// bad request
+			a.App.ErrorLog.Println(err)
+			return
+		}
+		u.LastName = a.App.RandomString(10)
+		err = u.Update(*u)
+		if err != nil {
+			// bad request
+			a.App.ErrorLog.Println(err)
+			return
+		}
+
+		fmt.Fprintf(rw, "update last name to %s", u.LastName)
+	})
 
 	a.App.Routes.Get("/test-database", func(rw http.ResponseWriter, r *http.Request) {
 		query := "select id, first_name from users where id = 1"
