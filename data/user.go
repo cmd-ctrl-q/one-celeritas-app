@@ -131,7 +131,7 @@ func (u *User) Insert(theUser User) (int, error) {
 	theUser.Password = string(newHash)
 
 	collection := upper.Collection(u.Table())
-	res, err := collection.Insert(theUser)
+	res, err := collection.Insert(&theUser)
 	if err != nil {
 		return 0, fmt.Errorf("error inserting a user: %w", err)
 	}

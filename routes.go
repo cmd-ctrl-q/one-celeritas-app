@@ -17,11 +17,18 @@ func (a *application) routes() *chi.Mux {
 	a.App.Routes.Get("/go-page", a.Handlers.GoPage)
 	a.App.Routes.Get("/jet-page", a.Handlers.JetPage)
 	a.App.Routes.Get("/sessions", a.Handlers.SessionTest)
+
+	// GET: for retreiving the login page
+	a.App.Routes.Get("/users/login", a.Handlers.GetUserLogin)
+	// POST: for handling the login form
+	a.App.Routes.Post("/users/login", a.Handlers.PostUserLogin)
+	a.App.Routes.Get("/users/logout", a.Handlers.Logout)
+
 	a.App.Routes.Get("/create-user", func(rw http.ResponseWriter, r *http.Request) {
 		u := data.User{
-			FirstName: "jack",
-			LastName:  "beanstalk",
-			Email:     "jack@andthebeanstalk.com",
+			FirstName: "apple",
+			LastName:  "banana",
+			Email:     "apple@banana.com",
 			Active:    1,
 			Password:  "password",
 		}
