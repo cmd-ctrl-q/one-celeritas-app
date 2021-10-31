@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	db2 "github.com/upper/db/v4"
@@ -28,4 +29,15 @@ func New(databasePool *sql.DB) Models {
 	}
 
 	return Models{}
+}
+
+func getInsertID(i db2.ID) int {
+	idType := fmt.Sprintf("%T", i)
+	if idType == "int64" {
+		// cast to int64
+		return int(i.(int64))
+	}
+
+	// else cast to an int
+	return i.(int)
 }
