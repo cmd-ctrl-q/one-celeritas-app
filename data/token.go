@@ -221,7 +221,7 @@ func (t *Token) AuthenticateToken(r *http.Request) (*User, error) {
 	}
 
 	// get user associated with token
-	user, err := t.GetUserForToken(token)
+	user, err := tkn.GetUserForToken(token)
 	if err != nil {
 		return nil, errUserNoMatch
 	}
