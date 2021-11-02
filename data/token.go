@@ -25,7 +25,7 @@ var (
 )
 
 type Token struct {
-	ID        int    `db:"id" json:"id"`
+	ID        int    `db:"id,omitempty" json:"id"`
 	UserID    int    `db:"user_id" json:"user_id"`
 	FirstName string `db:"first_name" json:"first_name"`
 	Email     string `db:"email" json:"email"`
@@ -113,7 +113,16 @@ func (t *Token) GetByToken(plainText string) (*Token, error) {
 func (t *Token) Delete(id int) error {
 	collection := upper.Collection(t.Table())
 	res := collection.Find(id)
-	err := res.Delete()
+	// check if token exists
+	b, err := res.Exists()
+	if err != nil {
+		return err
+	}
+	if !b {
+		return errors.New("no result found in database")
+	}
+
+	err = res.Delete()
 	if err != nil {
 		return err
 	}
@@ -125,7 +134,16 @@ func (t *Token) Delete(id int) error {
 func (t *Token) DeleteByToken(plainText string) error {
 	collection := upper.Collection(t.Table())
 	res := collection.Find(up.Cond{"token": plainText})
-	err := res.Delete()
+	b, err := res.Exists()
+	if err != nil {
+		return err
+	}
+	if !b {
+		return errors.New("no result found in database")
+	}
+
+	// result exists, delete it
+	err = res.Delete()
 	if err != nil {
 		return err
 	}
@@ -151,10 +169,13 @@ func (t *Token) Insert(token Token, u User) error {
 	token.Email = u.Email
 
 	// insert the new token
-	_, err = collection.Insert(token)
+	resultID, err := collection.Insert(token)
 	if err != nil {
 		return err
 	}
+
+	id := getInsertID(resultID.ID())
+	t.ID = id
 
 	return nil
 }
