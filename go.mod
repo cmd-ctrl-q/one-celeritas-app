@@ -7,6 +7,7 @@ replace github.com/cmd-ctrl-q/celeritas => ../celeritas
 
 require (
 	github.com/CloudyKit/jet/v6 v6.1.0
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/cmd-ctrl-q/celeritas v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi/v5 v5.0.5
 	github.com/upper/db/v4 v4.2.1

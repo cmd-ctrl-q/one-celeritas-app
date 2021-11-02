@@ -17,11 +17,11 @@ const (
 )
 
 var (
-	noAuthHeader   = errors.New("no authorization header received")
-	tokenWrongSize = errors.New("token is the wrong size")
-	tokenNoMatch   = errors.New("no matching token found")
-	tokenExpired   = errors.New("expired token")
-	userNoMatch    = errors.New("no matching user found")
+	errNoAuthHeader   = errors.New("no authorization header received")
+	errTokenWrongSize = errors.New("token is the wrong size")
+	errTokenNoMatch   = errors.New("no matching token found")
+	errTokenExpired   = errors.New("expired token")
+	errUserNoMatch    = errors.New("no matching user found")
 )
 
 type Token struct {
@@ -191,7 +191,7 @@ func (t *Token) AuthenticateToken(r *http.Request) (*User, error) {
 	authorizationHeader := r.Header.Get(authorization)
 	// if auth header doesn't exist
 	if authorizationHeader == "" {
-		return nil, noAuthHeader
+		return nil, errNoAuthHeader
 	}
 
 	// check that header is in correct format
@@ -199,31 +199,31 @@ func (t *Token) AuthenticateToken(r *http.Request) (*User, error) {
 
 	// check for bearer + token
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return nil, noAuthHeader
+		return nil, errNoAuthHeader
 	}
 
 	token := headerParts[1]
 
 	// check that the token is in the correct format
 	if len(token) != 26 {
-		return nil, tokenWrongSize
+		return nil, errTokenWrongSize
 	}
 
 	// get token from db
-	t, err := t.GetByToken(token)
+	tkn, err := t.GetByToken(token)
 	if err != nil {
-		return nil, tokenNoMatch
+		return nil, errTokenNoMatch
 	}
 
 	// check if token expired
-	if t.Expires.Before(time.Now()) {
-		return nil, tokenExpired
+	if tkn.Expires.Before(time.Now()) {
+		return nil, errTokenExpired
 	}
 
 	// get user associated with token
 	user, err := t.GetUserForToken(token)
 	if err != nil {
-		return nil, userNoMatch
+		return nil, errUserNoMatch
 	}
 
 	return user, nil
@@ -234,17 +234,17 @@ func (t *Token) ValidToken(token string) (bool, error) {
 	// get user associated with token
 	user, err := t.GetUserForToken(token)
 	if err != nil {
-		return false, userNoMatch
+		return false, errUserNoMatch
 	}
 
 	// check token is not empty (eg user with no token)
 	if user.Token.PlainText == "" {
-		return false, tokenNoMatch
+		return false, errTokenNoMatch
 	}
 
 	// check if token expired
 	if t.Expires.Before(time.Now()) {
-		return false, tokenExpired
+		return false, errTokenExpired
 	}
 
 	// is valid non-expired token
