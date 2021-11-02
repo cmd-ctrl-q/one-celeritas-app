@@ -189,3 +189,68 @@ func TestUser_Table(t *testing.T) {
 		t.Error("wrong table named returned:", s)
 	}
 }
+
+func TestUser_Insert(t *testing.T) {
+	id, err := models.Users.Insert(dummyUser)
+	if err != nil {
+		t.Error("failed to insert user:", err)
+	}
+
+	if id == 0 {
+		t.Error("0 returned as id after insert")
+	}
+}
+
+func TestUser_Get(t *testing.T) {
+	u, err := models.Users.Get(1)
+	if err != nil {
+		t.Error("failed to get user:", err)
+	}
+
+	if u.ID == 0 {
+		t.Error("id of returned user is 0:", err)
+	}
+}
+
+func TestUser_GetAll(t *testing.T) {
+	_, err := models.Users.GetAll()
+	if err != nil {
+		t.Error("failed to get all users:", err)
+	}
+}
+
+func TestUser_GetByEmail(t *testing.T) {
+	u, err := models.Users.GetByEmail("me@here.com")
+	if err != nil {
+		t.Error("failed to get users by email:", err)
+	}
+
+	if u.ID == 0 {
+		t.Error("id of returned user is 0:", err)
+	}
+}
+
+func TestUser_Update(t *testing.T) {
+	// get user
+	u, err := models.Users.Get(1)
+	if err != nil {
+		t.Error("failed to get users:", err)
+	}
+
+	// change last name
+	u.LastName = "Smith"
+	err = u.Update(*u)
+	if err != nil {
+		t.Error("failed to update users:", err)
+	}
+
+	// get user again
+	u, err = models.Users.Get(1)
+	if err != nil {
+		t.Error("failed to get users:", err)
+	}
+
+	if u.LastName != "Smith" {
+		t.Error("last name not updated in database:", err)
+	}
+}
