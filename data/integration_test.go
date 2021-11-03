@@ -629,24 +629,43 @@ func TestToken_ValidToken(t *testing.T) {
 		t.Error("error inserting a token", err)
 	}
 
-	b, err := token.ValidToken(token.PlainText)
+	okay, err := token.ValidToken(u.Token.PlainText)
 	if err != nil {
-		t.Error(err)
+		t.Error("error calling ValidToken:", err)
 	}
 
 	// check if valid token is invalid
-	if !b {
+	if !okay {
 		t.Error("valid token is invalid")
 	}
 
 	// test invalid token
-	b, err = token.ValidToken("invalid-token-hash")
+	okay, err = token.ValidToken("invalid-token-hash")
 
 	if err == nil {
 		t.Error(err)
 	}
-	if b {
+	if okay {
 		// if invalid token came back as valid, error
 		t.Error("invalid token came back as valid but should be invalid")
+	}
+
+	// check token after token is deleted
+	u, err = models.Users.GetByEmail(dummyUser.Email)
+	if err != nil {
+		t.Error("error getting user by email:", err)
+	}
+
+	err = models.Tokens.Delete(u.Token.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	okay, err = models.Tokens.ValidToken(u.Token.PlainText)
+	if err == nil {
+		t.Error(err)
+	}
+	if okay {
+		t.Error("no error when validating non-existing token")
 	}
 }
