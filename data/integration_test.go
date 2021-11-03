@@ -46,6 +46,8 @@ var pool *dockertest.Pool
 
 func TestMain(m *testing.M) {
 	os.Setenv("DATABASE_TYPE", "postgres")
+	// ignore warning messages since default is WARNING
+	os.Setenv("UPPER_DB_LOG", "ERROR")
 
 	// get docker image and run it
 	p, err := dockertest.NewPool("")
