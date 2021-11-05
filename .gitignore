@@ -31,3 +31,4 @@ Makefile
 docker-compose.yml
 db-data
 *.sql
+celeritas
