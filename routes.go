@@ -81,6 +81,15 @@ func (a *application) routes() *chi.Mux {
 			return
 		}
 		u.LastName = a.App.RandomString(10)
+
+		// validation
+		validator := a.App.Validator(nil)
+		validator.Check(len(u.LastName) > 20, "last_name", "Last name must be 20 characters or more")
+		if !validator.Valid() {
+			fmt.Fprint(rw, "failed validation")
+			return
+		}
+
 		err = u.Update(*u)
 		if err != nil {
 			// bad request

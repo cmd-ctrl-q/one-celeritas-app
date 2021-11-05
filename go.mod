@@ -18,6 +18,9 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.5.0 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
+	github.com/alexedwards/scs/mysqlstore v0.0.0-20211102093144-4fbbc167f2c1 // indirect
+	github.com/alexedwards/scs/postgresstore v0.0.0-20211102093144-4fbbc167f2c1 // indirect
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/containerd/continuity v0.1.0 // indirect
 	github.com/docker/cli v20.10.8+incompatible // indirect
