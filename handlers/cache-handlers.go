@@ -11,6 +11,9 @@ func (h *Handlers) ShowCachePage(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) SaveInCache(w http.ResponseWriter, r *http.Request) {
 
+	var ok = true
+	var msg string
+
 	var userInput struct {
 		Name  string `json:"name"`
 		Value string `json:"value"`
@@ -20,13 +23,16 @@ func (h *Handlers) SaveInCache(w http.ResponseWriter, r *http.Request) {
 	// read json from client
 	err := h.App.ReadJSON(w, r, &userInput)
 	if err != nil {
+		ok = false
+		msg = "Error reading json"
 		h.App.Error404(w, r)
-		return
 	}
 
 	// set value in cache
 	err = h.App.Cache.Set(userInput.Name, userInput.Value)
 	if err != nil {
+		ok = false
+		msg = "Error setting values in cache"
 		h.App.Error500(w, r)
 	}
 
@@ -35,8 +41,13 @@ func (h *Handlers) SaveInCache(w http.ResponseWriter, r *http.Request) {
 		Message string `json:"message"`
 	}
 
-	resp.Error = false
-	resp.Message = "Saved in cache"
+	if !ok {
+		resp.Error = true
+		resp.Message = msg
+	} else {
+		resp.Error = false
+		resp.Message = "Saved in cache"
+	}
 
 	_ = h.App.WriteJSON(w, http.StatusCreated, resp)
 }
