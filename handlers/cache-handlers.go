@@ -9,28 +9,25 @@ func (h *Handlers) ShowCachePage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type userInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-	CSRF  string `json:"csrf_token"`
-}
-
 func (h *Handlers) SaveInCache(w http.ResponseWriter, r *http.Request) {
 
-	var data userInput
+	var userInput struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+		CSRF  string `json:"csrf_token"`
+	}
 
 	// read json from client
-	err := h.App.ReadJSON(w, r, &data)
+	err := h.App.ReadJSON(w, r, &userInput)
 	if err != nil {
 		h.App.Error404(w, r)
 		return
 	}
 
 	// set value in cache
-	err = h.App.Cache.Set(data.Name, data.Value)
+	err = h.App.Cache.Set(userInput.Name, userInput.Value)
 	if err != nil {
 		h.App.Error500(w, r)
-		return
 	}
 
 	var resp struct {
@@ -45,18 +42,22 @@ func (h *Handlers) SaveInCache(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) GetFromCache(w http.ResponseWriter, r *http.Request) {
+	var userInput struct {
+		Name string `json:"name"`
+		CSRF string `json:"csrf_token"`
+	}
 
 	var msg string
 	var inCache = true
-	var data userInput
 
-	err := h.App.ReadJSON(w, r, &data)
+	err := h.App.ReadJSON(w, r, &userInput)
 	if err != nil {
 		h.App.Error404(w, r)
+		return
 	}
 
 	// save user input
-	fromCache, err := h.App.Cache.Get(data.Name)
+	fromCache, err := h.App.Cache.Get(userInput.Name)
 	if err != nil {
 		msg = "Not found in cache"
 		inCache = false
@@ -82,15 +83,18 @@ func (h *Handlers) GetFromCache(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) DeleteFromCache(w http.ResponseWriter, r *http.Request) {
-	var data userInput
+	var userInput struct {
+		Name string `json:"name"`
+		CSRF string `json:"csrf_token"`
+	}
 
-	err := h.App.ReadJSON(w, r, &data)
+	err := h.App.ReadJSON(w, r, &userInput)
 	if err != nil {
 		h.App.Error404(w, r)
 		return
 	}
 
-	err = h.App.Cache.Forget(data.Name)
+	err = h.App.Cache.Forget(userInput.Name)
 	if err != nil {
 		h.App.Error500(w, r)
 		return
