@@ -10,6 +10,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/cmd-ctrl-q/celeritas v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi/v5 v5.0.5
+	github.com/justinas/nosurf v1.1.1
 	github.com/upper/db/v4 v4.2.1
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 )
@@ -20,6 +21,7 @@ require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/alexedwards/scs/mysqlstore v0.0.0-20211102093144-4fbbc167f2c1 // indirect
 	github.com/alexedwards/scs/postgresstore v0.0.0-20211102093144-4fbbc167f2c1 // indirect
+	github.com/alexedwards/scs/redisstore v0.0.0-20211102093144-4fbbc167f2c1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/containerd/continuity v0.1.0 // indirect
