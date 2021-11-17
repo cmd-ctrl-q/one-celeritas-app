@@ -32,3 +32,6 @@ docker-compose.yml
 db-data
 *.sql
 celeritas
+!mail
+mail/*
+!mail/test*
