@@ -131,3 +131,21 @@ func (h *Handlers) Logout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
+
+func (h *Handlers) Forgot(w http.ResponseWriter, r *http.Request) {
+	err := h.render(w, r, "forgot", nil, nil)
+	if err != nil {
+		h.App.ErrorLog.Println("Error rendering:", err)
+		h.App.Error500(w, r)
+	}
+}
+
+func (h *Handlers) PostForgot(w http.ResponseWriter, r *http.Request) {
+	// check email address in form.
+
+	// look up user with the email address
+
+	// if user exists, then send instructions to email associated with that user (including a link which is unique to each user)
+	// ie generate token, save it to db, have it tied to this particular email address, when user submits token (which is in the link)
+	// compare/verify it to the one in the db before changing the users password
+}
