@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/CloudyKit/jet/v6"
 	"github.com/cmd-ctrl-q/celeritas/mailer"
 	"github.com/cmd-ctrl-q/celeritas/urlsigner"
 )
@@ -198,4 +199,46 @@ func (h *Handlers) PostForgot(w http.ResponseWriter, r *http.Request) {
 
 	// redirect the user
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
+}
+
+func (h *Handlers) ResetPasswordForm(w http.ResponseWriter, r *http.Request) {
+	// get form values
+	email := r.URL.Query().Get("email")
+	theURL := r.RequestURI
+	testURL := fmt.Sprintf("%s%s", h.App.Server.URL, theURL)
+
+	// validate url
+	signer := urlsigner.Signer{
+		Secret: []byte(h.App.EncryptionKey),
+	}
+
+	valid := signer.VerifyToken(testURL)
+	if !valid {
+		h.App.ErrorLog.Println("Invalid url")
+		h.App.ErrorUnauthorized(w, r)
+		return
+	}
+
+	// make sure its not expired
+	expired := signer.Expired(testURL, 60)
+	if expired {
+		h.App.ErrorLog.Println("Link expired")
+		h.App.ErrorUnauthorized(w, r)
+		return
+	}
+
+	encryptedEmail, err := h.encrypt(email)
+	if err != nil {
+		return
+	}
+
+	// pass vars to form
+	vars := make(jet.VarMap)
+	vars.Set("email", encryptedEmail)
+
+	// display form
+	err = h.render(w, r, "reset-password", vars, nil)
+	if err != nil {
+		return
+	}
 }
