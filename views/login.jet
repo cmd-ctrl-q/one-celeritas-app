@@ -9,6 +9,13 @@
 
 <hr>
 
+<!-- if flash is in the template data but is not empty, display its data -->
+{{if .Flash != ""}}
+<div class="alert alert-info text-center">
+    {{.Flash}}
+</div>
+{{end}}
+
 <form action="" method="post"
     name="login-form" id="login-form"
     class="d-block needs-validation"
