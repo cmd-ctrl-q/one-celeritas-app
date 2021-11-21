@@ -7,6 +7,9 @@ import (
 	"myapp/data"
 	"net/http"
 	"time"
+
+	"github.com/cmd-ctrl-q/celeritas/mailer"
+	"github.com/cmd-ctrl-q/celeritas/urlsigner"
 )
 
 // UserLogin displays the login page
@@ -141,11 +144,58 @@ func (h *Handlers) Forgot(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) PostForgot(w http.ResponseWriter, r *http.Request) {
-	// check email address in form.
+	// parse form
+	err := r.ParseForm()
+	if err != nil {
+		h.App.ErrorStatus(w, http.StatusBadRequest)
+		return
+	}
 
-	// look up user with the email address
+	// verify the supplied email exists
+	var u *data.User
+	email := r.Form.Get("email")
+	u, err = u.GetByEmail(email)
+	if err != nil {
+		// invalid email
+		h.App.ErrorStatus(w, http.StatusBadRequest)
+		return
+	}
 
-	// if user exists, then send instructions to email associated with that user (including a link which is unique to each user)
-	// ie generate token, save it to db, have it tied to this particular email address, when user submits token (which is in the link)
-	// compare/verify it to the one in the db before changing the users password
+	// create a link to password reset form
+	link := fmt.Sprintf("%s/users/reset-password?email=%s", h.App.Server.URL, email)
+
+	// sign the link
+	sign := urlsigner.Signer{
+		Secret: []byte(h.App.EncryptionKey),
+	}
+
+	signedLink := sign.GenerateTokenFromString(link)
+
+	h.App.InfoLog.Println("Signed link is", signedLink)
+
+	// email the message
+	var data struct {
+		Link string
+	}
+
+	data.Link = signedLink
+
+	msg := mailer.Message{
+		To:       u.Email,
+		Subject:  "Password reset",
+		Template: "password-reset",
+		Data:     data,
+		From:     "admin@example.com",
+	}
+
+	// send to jobs queue
+	h.App.Mail.Jobs <- msg
+	res := <-h.App.Mail.Results
+	if res.Error != nil {
+		h.App.ErrorStatus(w, http.StatusBadRequest)
+		return
+	}
+
+	// redirect the user
+	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
